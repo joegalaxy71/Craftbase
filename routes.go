@@ -1,13 +1,13 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
 	"html/template"
+	"net/http"
+	_ "net/url"
+	"os"
 	_ "path"
 	"path/filepath"
-	"os"
-	"fmt"
-	_ "net/url"
 )
 
 // PACKAGE GLOBALS /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ func init() {
 	var err error
 	basepath := "/var/go/craftbase/src/craftbase/templates/"
 
-	filepath.Walk(basepath, checkIllo)
+	filepath.Walk(basepath, addTemplate)
 
 	//fp := path.Join(basepath, "*.tmpl")
 
@@ -68,7 +68,7 @@ func checkErr(message string, err error) {
 	}
 }
 
-func checkIllo(path string, fi os.FileInfo, err error) error {
+func addTemplate(path string, fi os.FileInfo, err error) error {
 	if !fi.IsDir() {
 		log.Info(path)
 		templates = append(templates, path)

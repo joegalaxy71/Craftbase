@@ -1,0 +1,158 @@
+   {{ template "head" }}
+
+    <body>
+        <div class="container">
+        {{ template "header" }}
+
+
+
+        <div class="row">
+            <div id='top' class='span12 sd'>
+                CRAFTBASE LOGO
+
+                <div id='top-right'>
+                    <div id='social'>
+                        <a target="_blank" href="#"><img src="media/icons/social/twitter.png"/></a>
+                        <a target="_blank" href="#"><img src="media/icons/social/facebook.png"/></a>
+                        <a target="_blank" href="#"><img src="media/icons/social/googleplus.png"/></a>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id='main' class='span12 sd'>MIDDLE
+                <br>Welcome to craftbase.com!
+
+                Sto filtrando per: <strong>{{ .filter }}  </strong><br/><br />
+
+                <table border='1' class='tavola'>
+                    <tr>
+                        <td class='header'></td>
+                        <td class='header'>minecraft-id</td>
+                        <td class='header'>category</td>
+                        <td class='header'>name</td>
+                        <td class='header'>found</td>
+                        <td class='header'>i1</td>
+                        <td class='header'>i2</td>
+                        <td class='header'>i3</td>
+                        <td class='header'>i4</td>
+                        <td class='header'>i5</td>
+                        <td class='header'>i6</td>
+                        <td class='header'>i7</td>
+                        <td class='header'>i8</td>
+                        <td class='header'>i9</td>
+                    </tr>
+
+                        <tr>
+
+                            <td>
+                                <a href="edit.php?id=<?php echo $row['id']; ?>">
+                                    <button type="button" class="btn btn-default">    <span class="glyphicon glyphicon-pencil"></span>   </button>
+                                </a>
+                            </td>
+
+
+                            <td>
+                                <?php echo $row['minecraft_id']; ?>
+                            </td>
+
+
+                            <td>
+                                <?php echo $row['category']; ?>
+                            </td>
+                            <td>
+                                <?php echo $row['name']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['found']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i1']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i2']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i3']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i4']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i5']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i6']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i7']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i8']; ?>
+                            </td>
+
+                            <td>
+                                <?php echo $row['i9']; ?>
+                            </td>
+                        </tr>
+
+
+
+
+
+                </table>
+                <a href="new">
+                    <button type="button" class="btn btn-default">    <span class="glyphicon glyphicon-asterisk">New</span>   </button>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div id='bottom' class='span12 sd'>
+            {{ template "footer" }}
+            </div>
+        </div>
+        </div>
+
+
+
+
+    <div id='background' align="center" ><img src="media/background/sky.png" border="0" class="bg" ></div>
+
+
+
+    <script type="text/javascript">
+        $('#login-radio').click(function(event){
+            //toggle radio button
+            $('#login-radio').button('toggle');
+            //show or hide the right div
+            $('#register-div').toggleClass("hidden", true);
+            $('#login-div').toggleClass("hidden", false);
+
+        });
+        $('#register-radio').click(function(event){
+            //toggle radio button
+            $('#register-radio').button('toggle');
+            //show or hide the right div
+            $('#register-div').toggleClass("hidden", false);
+            $('#login-div').toggleClass("hidden", true);
+        });
+
+        $('ul.dropdown-menu.login-box').click(function(event) {
+            event.stopPropagation();
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,7 +1,6 @@
 package main
 
-
 type Context struct {
-	Title string
+	Title  string
 	Author string
 }

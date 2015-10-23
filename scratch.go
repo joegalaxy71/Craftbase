@@ -1,6 +1,5 @@
 package main
 
-
 /*
 log.Debug("debug")
 log.Info("info")

@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
 	"flag"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/op/go-logging"
+	_ "github.com/go-sql-driver/mysql"
+	"net/http"
 	_ "net/http/pprof"
+	"os"
+	"os/signal"
 	"runtime/pprof"
-
+	"database/sql"
 )
 
 // PACKAGE GLOBALS//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,6 +26,7 @@ var format = logging.MustStringFormatter(
 
 var port int
 var f *os.File
+var db sql.DB
 
 // INIT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +43,18 @@ func init() {
 
 	//create file for profiling
 	f, err = os.Create("ubiquy.cpuprofile")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := sql.Open("mysql", "root:Numero98@/craftbase")
+	if err != nil {
+		panic(err)
+	}
+
+	defer db.Close()
+
+	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
