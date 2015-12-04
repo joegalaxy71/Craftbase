@@ -10,23 +10,16 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	"runtime/pprof"
 	"database/sql"
+	"gopkg.in/boj/redistore.v1"
 )
 
 // PACKAGE GLOBALS//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var log = logging.MustGetLogger("example")
-
-// Example format string. Everything except the message has a custom color
-// which is dependent on the log level. Many fields have a custom output
-// formatting too, eg. the time returns the hour down to the milli second.
-var format = logging.MustStringFormatter(
-	"%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}")
-
+var store *redistore.RediStore
 var port int
-var f *os.File
-var db sql.DB
+var db *sql.DB
 
 // INIT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,28 +29,27 @@ func init() {
 	// logging
 	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
 	backend2 := logging.NewLogBackend(os.Stderr, "", 0)
+	format := logging.MustStringFormatter(
+		"%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}")
 	backend2Formatter := logging.NewBackendFormatter(backend2, format)
 	backend1Leveled := logging.AddModuleLevel(backend1)
 	backend1Leveled.SetLevel(logging.ERROR, "")
 	logging.SetBackend(backend1Leveled, backend2Formatter)
 
-	//create file for profiling
-	f, err = os.Create("ubiquy.cpuprofile")
+	db, err = sql.Open("mysql", "root:Numero98@tcp(localhost:3306)/craftbase")
 	if err != nil {
 		panic(err)
 	}
 
-	db, err := sql.Open("mysql", "root:Numero98@/craftbase")
-	if err != nil {
-		panic(err)
-	}
-
-	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
 		panic(err)
 	}
+
+	// redistore init
+	store, err = redistore.NewRediStore(10, "tcp", ":6379", "", []byte("secret-key"))
+	if_err_panic("12gh34: error creating store", err)
 
 	log.Info("main.go: init completed\n")
 }
@@ -65,16 +57,14 @@ func init() {
 // MAIN ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func main() {
+	defer db.Close()
 
 	// handle ^c (os.Interrupt)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go cleanup(c)
 
-	// start CPU profiling
-	pprof.StartCPUProfile(f)
-
-	const defaultPort = 3333
+	const defaultPort = 33000
 
 	flag.IntVar(&port, "port", 0, "sets the listen port on localhost")
 	flag.Parse()
@@ -86,9 +76,7 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", homeHandler)
-	r.HandleFunc("/products", productsHandler)
-	r.HandleFunc("/articles", articlesHandler)
+	r.HandleFunc("/list", listHandler)
 
 	http.Handle("/", r)
 
@@ -106,10 +94,13 @@ func cleanup(c chan os.Signal) {
 	<-c
 	log.Warning("Got os.Interrupt: cleaning up")
 
-	// stopping profiling and closing file
-	pprof.StopCPUProfile()
-	f.Close()
-
 	// exiting gracefully
 	os.Exit(0)
+}
+
+func if_err_panic (msg string, e error) {
+	if e != nil {
+		log.Error(msg, e)
+		panic(e)
+	}
 }

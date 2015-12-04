@@ -1,10 +1,9 @@
-   {{ template "head" }}
+{{ define "list" }}
+   {{ template "head" . }}
 
     <body>
         <div class="container">
-        {{ template "header" }}
-
-
+        {{ template "header" .}}
 
         <div class="row">
             <div id='top' class='span12 sd'>
@@ -25,7 +24,7 @@
             <div id='main' class='span12 sd'>MIDDLE
                 <br>Welcome to craftbase.com!
 
-                Sto filtrando per: <strong>{{ .filter }}  </strong><br/><br />
+                Sto filtrando per: <strong>{{ .Filter }}  </strong><br/><br />
 
                 <table border='1' class='tavola'>
                     <tr>
@@ -156,3 +155,4 @@
 </body>
 
 </html>
+{{end}}
