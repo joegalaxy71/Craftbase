@@ -11,9 +11,9 @@
 
                 <div id='top-right'>
                     <div id='social'>
-                        <a target="_blank" href="#"><img src="media/icons/social/twitter.png"/></a>
-                        <a target="_blank" href="#"><img src="media/icons/social/facebook.png"/></a>
-                        <a target="_blank" href="#"><img src="media/icons/social/googleplus.png"/></a>
+                        <a target="_blank" href="#"><img src="/static/media/icons/social/twitter.png"/></a>
+                        <a target="_blank" href="#"><img src="/static/media/icons/social/facebook.png"/></a>
+                        <a target="_blank" href="#"><img src="/static/media/icons/social/googleplus.png"/></a>
                     </div>
 
 
@@ -43,7 +43,7 @@
                         <td class='header'>i8</td>
                         <td class='header'>i9</td>
                     </tr>
-
+                        {{ range .Items }}
                         <tr>
 
                             <td>
@@ -54,59 +54,59 @@
 
 
                             <td>
-                                <?php echo $row['minecraft_id']; ?>
+                                {{ .MinecraftId}}
                             </td>
 
 
                             <td>
-                                <?php echo $row['category']; ?>
+                                {{ .Category}}
                             </td>
                             <td>
-                                <?php echo $row['name']; ?>
-                            </td>
-
-                            <td>
-                                <?php echo $row['found']; ?>
+                                {{ .Name}}
                             </td>
 
                             <td>
-                                <?php echo $row['i1']; ?>
+                                {{ .Found}}
                             </td>
 
                             <td>
-                                <?php echo $row['i2']; ?>
+                                {{ .I1}}
                             </td>
 
                             <td>
-                                <?php echo $row['i3']; ?>
+                                {{ .I2}}
                             </td>
 
                             <td>
-                                <?php echo $row['i4']; ?>
+                                {{ .I3}}
                             </td>
 
                             <td>
-                                <?php echo $row['i5']; ?>
+                                {{ .I4}}
                             </td>
 
                             <td>
-                                <?php echo $row['i6']; ?>
+                                {{ .I5}}
                             </td>
 
                             <td>
-                                <?php echo $row['i7']; ?>
+                                {{ .I6}}
                             </td>
 
                             <td>
-                                <?php echo $row['i8']; ?>
+                                {{ .I7}}
                             </td>
 
                             <td>
-                                <?php echo $row['i9']; ?>
+                                {{ .I8}}
+                            </td>
+
+                            <td>
+                                {{ .I9}}
                             </td>
                         </tr>
 
-
+                    {{ end }}
 
 
 
@@ -126,7 +126,7 @@
 
 
 
-    <div id='background' align="center" ><img src="media/background/sky.png" border="0" class="bg" ></div>
+    <div id='background' align="center" ><img src="/static/media/background/sky.png" border="0" class="bg" ></div>
 
 
 

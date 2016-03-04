@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
+	"path/filepath"
 	"github.com/gorilla/mux"
 	"github.com/op/go-logging"
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +22,8 @@ var log = logging.MustGetLogger("example")
 var store *redistore.RediStore
 var port int
 var db *sql.DB
+var allTemplates = template.New("home")
+var templates []string
 
 // INIT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +45,6 @@ func init() {
 		panic(err)
 	}
 
-
 	err = db.Ping()
 	if err != nil {
 		panic(err)
@@ -50,6 +53,18 @@ func init() {
 	// redistore init
 	store, err = redistore.NewRediStore(10, "tcp", ":6379", "", []byte("secret-key"))
 	if_err_panic("12gh34: error creating store", err)
+
+	basepath := "/var/go/craftbase/src/craftbase/templates/"
+
+	filepath.Walk(basepath, addTemplate)
+
+	//fp := path.Join(basepath, "*.tmpl")
+
+	allTemplates, err = template.ParseFiles(templates...)
+	checkErr("error parsing template: ", err)
+
+	log.Info("routes.go: init completed\n")
+
 
 	log.Info("main.go: init completed\n")
 }
@@ -88,19 +103,3 @@ func main() {
 	}
 }
 
-// FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func cleanup(c chan os.Signal) {
-	<-c
-	log.Warning("Got os.Interrupt: cleaning up")
-
-	// exiting gracefully
-	os.Exit(0)
-}
-
-func if_err_panic (msg string, e error) {
-	if e != nil {
-		log.Error(msg, e)
-		panic(e)
-	}
-}

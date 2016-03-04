@@ -2,38 +2,12 @@ package main
 
 import (
 	"fmt"
-	"html/template"
 	"net/http"
-	_ "net/url"
 	"os"
-	_ "path"
-	"path/filepath"
 	"github.com/gorilla/sessions"
 
 )
 
-// PACKAGE GLOBALS /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-var allTemplates = template.New("home")
-var templates []string
-
-// INIT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-func init() {
-	var err error
-	basepath := "/var/go/craftbase/src/craftbase/templates/"
-
-	filepath.Walk(basepath, addTemplate)
-
-	//fp := path.Join(basepath, "*.tmpl")
-
-	allTemplates, err = template.ParseFiles(templates...)
-	checkErr("error parsing template: ", err)
-
-	log.Info("routes.go: init completed\n")
-}
-
-// FUNCTIONS ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func listHandler(w http.ResponseWriter, r *http.Request) {
 	// Fetch new store.
@@ -111,7 +85,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "--- GENERATED PAGE ---\n")
 	}
 
-	err = allTemplates.ExecuteTemplate(w, "home", listContext)
+	err = allTemplates.ExecuteTemplate(w, "list", listContext)
 	if_err_panic("error executing template: ", err)
 }
 
