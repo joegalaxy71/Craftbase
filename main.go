@@ -89,15 +89,33 @@ func main() {
 		log.Warning("No port supplied with --port, falling back to default port: %v", defaultPort)
 	}
 
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
-	r.HandleFunc("/list", listHandler)
+	//pages
+	router.HandleFunc("/", homeHandler)
+	router.HandleFunc("/login", loginHandler)
+	//router.HandleFunc("/change-password", changePasswordHandler)
+	//router.HandleFunc("/request-reset", requestResetHandler)
+	//router.HandleFunc("/reset-password/{recoveryCode}", resetPasswordHandler)
+	//
+	////auth
+	//
+	//router.HandleFunc("/auth/internal/signup", authInternalSignUpHandler)
+	//router.HandleFunc("/auth/internal/activate/{activationCode}", authInternalActivateHandler)
+	router.HandleFunc("/auth/internal/login", authInternalLoginHandler)
+	//router.HandleFunc("/auth/internal/change-password", authInternalChangePasswordHandler)
+	//router.HandleFunc("/auth/internal/request-reset", authInternalRequestResetHandler)
+	//router.HandleFunc("/auth/internal/reset-password/{recoveryCode}", authInternalResetPasswordHandler)
+	//router.HandleFunc("/auth/internal/logout", authInternalLogoutHandler)
 
-	http.Handle("/", r)
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir("/var/go/craftbase/bin/")))
+
+
+	http.Handle("/", router)
 
 	log.Notice("Listening on port: %v", port)
 
-	err := http.ListenAndServe(fmt.Sprint(":", port), r)
+	err := http.ListenAndServe(fmt.Sprint(":", port), router)
 	if err != nil {
 		panic(err)
 	}

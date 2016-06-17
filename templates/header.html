@@ -1,0 +1,92 @@
+{{ define "header" }}
+
+<div id="uheader">
+
+    <a href="/"><img src="/static/img/logo/logo.png" id="ulogo" alt=""/></a>
+    <a href="/"><img src="/static/img/logo/logo-small.png" id="ulogo2" alt="logo2" class="uhide"/></a>
+
+    <div id="ubuttonsheader">
+        {{ if .UserState.Logged }}
+        <div class="btn-group" role="group" aria-label="...">
+            <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-envelope"></span>
+                <span class="notifica">0</span>
+            </button>
+            <!-- fine del primo if -->
+            <!-- qui ci metterei un if notifiche > 0 --->
+            <button type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-bell"></span>
+                <span class="notifica">0</span>
+            </button>
+            <!-- fine del secondo if -->
+
+            <button type="button" class="btn btn-default pull-right" data-toggle="dropdown">
+                {{ .UserState.Email }}
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu pull-right" role="menu" >
+                <li><a href="/profile"><i class="fa fa-user"></i>&nbsp;{{ .T.G "My Profile" }}</a></li>
+                <li><a href="/change-password"><i class="fa fa-key"></i>&nbsp;{{ .T.G "Change password" }}</a></li>
+                <li><a href="/options"><i class="fa fa-cog"></i>&nbsp;{{ .T.G "Options" }} </a></li>
+                <li class="divider"></li>
+                <li><a href="/auth/internal/logout"><i class="fa fa-sign-out"></i>&nbsp;{{ .T.G "Logout" }}</a> </li>
+            </ul>
+        </div>
+        {{ else }}
+        <div class="btn-group" role="group" aria-label="...">
+            <a href="/login" ><button type="button" class="btn btn-default"><i class="fa fa-sign-in"></i> {{ .T.G "Login" }}</button></a>
+        </div> {{ .T.G "or" }}
+        <div class="btn-group" role="group" aria-label="...">
+            <a href="/signup" ><button type="button" class="btn btn-default"><i class="fa fa-user-plus"></i> {{ .T.G "Sign up" }}</button></a>
+        </div>
+
+        {{ end }}
+
+        <div id="language-selector">
+            <div class="btn-group-xs">
+                <select id='langselect' name="language" class="selectpicker btn-default" title="ok" data-live-search="true">
+                    <optgroup label='' >
+                    {{ range .Languages }}
+                        <option value="{{ .Lang }}" data-content="<img src='/static/img/icons/flags/{{ .Image }}.png' height='24' width='24'> {{ .Name }}"
+                                {{if eq .Lang $.UserState.Lang  }} selected {{end}}
+                        >
+                        {{ .Name }}
+                        </option>
+                    {{ end }}
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+    </div> <!-- ubuttonsheader -->
+</div> <!-- uheader -->
+
+<script type="application/javascript">
+    $('#langselect').change(function (e) {
+        //get the lang value from the selected item
+        lang = $('#langselect').val();
+        //notify - debug
+        //alert('langselect clicked: switching to ' + lang + ' and reloading');
+
+        $.ajax({
+            type: "POST",
+            url: "/lang/change",
+            data: { Lang: lang },
+            success: lang_change_success,
+            error: lang_change_error,
+            dataType: "json"
+        });
+    });
+
+    //functions
+    function lang_change_success(data) {
+        //alert("success callback received data:" + data);
+        location.reload(true);
+    }
+
+    function lang_change_error(xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+    }
+</script>
+{{ end }}

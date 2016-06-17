@@ -1,0 +1,50 @@
+{{ define "login" }}
+
+{{ template "head" . }}
+
+<style>
+    .dg
+</style>
+
+<body xmlns="http://www.w3.org/1999/html" id="uab">
+
+{{template "header" . }}
+
+<div id="scrollingsection" class="uaresection">
+    <!-- page message section -->
+    {{ template "flash" .Flashes }}
+    <!-- col-xs-6 col-sm-4  ... class="well well-sm"-->
+    <h4>
+        <ol class="breadcrumb">
+            <!--<li><a href="#">Home</a></li>
+            <li><a href="#">Library</a></li>-->
+            <li class="active">Log in</li>
+        </ol>
+    </h4>
+    <div class="uform-login" >
+        <form class="form-signin" name='input' target='_self' method='post' action='/auth/internal/login'>
+            <h2 class="form-signin-heading">{{ .T.G "Please Log in" }}</h2>
+            <label for="inputEmail" class="sr-only">{{ .T.G "Email address" }}</label>
+            <input  name='Email' type="email" id="inputEmail" class="form-control" placeholder="{{ .T.G "Email address" }}"
+                    value="{{ .ExtendedState.LastLogin }}"
+                    required autofocus>
+            <label for="inputPassword" class="sr-only">{{ .T.G "Password" }}</label>
+            <input name='Password' type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="RememberMe" value="1">{{ .T.G "Remember me" }}
+                </label>
+            </div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit">{{ .T.G "Login" }}</button>
+            <p style="text-align:center; margin:0px; padding:5px;"><em>{{ .T.G " or" }}</em></p>
+        </form>
+        <a href="/request-reset"><button class="btn btn-lg btn-primary btn-block" >{{ .T.G "Reset password" }}</button></a>
+    </div>
+    <br>
+</div>
+
+{{ template "footer" . }}
+
+</body>
+
+{{ end }}
