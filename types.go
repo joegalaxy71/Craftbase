@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"net/http"
 )
 
 func init() {
@@ -14,7 +15,22 @@ type ListContext struct {
 	Logged bool
 	UserInfo User
 	Items []Item
+	UserState
+
 }
+
+type Context struct {
+	Request *http.Request
+
+	UserState
+	ExtendedState
+
+	Flashes   []string
+
+}
+
+
+
 
 type Item struct {
 	Id, Ke_user_id, MinecraftId, Category, Name string
@@ -50,7 +66,6 @@ type UserRow struct {
 
 type ExtendedState struct {
 	UserID    int64
-	Lang      string
 	LastLogin string
 }
 

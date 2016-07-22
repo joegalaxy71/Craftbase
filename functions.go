@@ -82,7 +82,7 @@ func assertUser(w http.ResponseWriter, r *http.Request, session30m, session1y *s
 			if userState.RememberMe == true {
 				extendedState.UserID = userState.UserID
 			}
-			extendedState.Lang = userState.Lang
+
 		} else {
 			// user is WANDERING and we persist a smaller subset and zero UserID
 			log.Debug("user is WANDERING")
@@ -110,17 +110,14 @@ func assertUser(w http.ResponseWriter, r *http.Request, session30m, session1y *s
 			} else {
 				// user is RETURN-WANDERING, we copy only a small info subset
 				log.Debug("user is RETURN-WANDERING")
-				userState.Lang = extendedState.Lang
+
 			}
 		} else {
 			// user is REALLYNEW
 			log.Debug("user is REALLYNEW")
 			log.Debug("Type assert failed(1ym): no extendedState in session1y\n")
-			// determine language
-			lang := determineLang(r, "")
-			log.Debug("determined lang: %v", lang)
 			// create an empty extendedState
-			extendedState = ExtendedState{0, lang, ""}
+			extendedState = ExtendedState{0, ""}
 			log.Debug("Created empty extendedState\n")
 		}
 	}

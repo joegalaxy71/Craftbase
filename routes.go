@@ -9,55 +9,37 @@ import (
 	"github.com/gorilla/schema"
 	"golang.org/x/crypto/bcrypt"
 	_ "github.com/sendgrid/sendgrid-go"
-	"github.com/Sam-Izdat/pogo/translate"
 
 )
 
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	// Fetch new store.
+	log.Notice("/home")
+	// sessions & user management ///////////////////////////
+	session30m, session1y := getSessions(r)
+	userState, extendedState := assertUser(w, r, session30m, session1y)
 
-	// Get or create sessions (both short and long lived)
-	session1m, err := store.Get(r, "session1m")
-	if_err_panic("23gh34: error creating session with 1m expiry", err)
-	session1m.Options.MaxAge = 60 //seconds
+	log.Debug("userState is: %#+v", userState)
+	log.Debug("extendedState is: %#+v", extendedState)
 
-	session5m, err := store.Get(r, "session5m")
-	if_err_panic("12gh34: error creating session with 5m expiry", err)
-	session5m.Options.MaxAge = 5*60 //seconds
+	// context & templates ///////////////////////////////////
+	var contextFlashes []string
 
-	session10m, err := store.Get(r, "session10m")
-	if_err_panic("df34sv: error creating session with 10m expiry", err)
-	session10m.Options.MaxAge = 10*60 //seconds
-
-	// Add a value
-	session1m.Values["1m"] = "means 1 min"
-	//	session5m.Values["5m"] = "means 5 min"
-	//	session10m.Values["10m"] = "means 10 min"
-
-	if str, ok := session1m.Values["1m"].(string); ok {
-		fmt.Printf("Returned:" + str + "\n")
-	} else {
-		fmt.Printf("Type assert failed(1m)\n")
+	for _, flash := range session30m.Flashes() {
+		if str, ok := flash.(string); ok {
+			contextFlashes = append(contextFlashes, str)
+		}
 	}
 
-	if str2, ok := session5m.Values["5m"].(string); ok {
-		fmt.Printf("Returned:" + str2 + "\n")
-	} else {
-		fmt.Printf("Type assert failed(5m)\n")
-	}
-
-	if str3, ok := session10m.Values["10m"].(string); ok {
-		fmt.Printf("Returned:" + str3 + "\n")
-	} else {
-		fmt.Printf("Type assert failed(10m)\n")
-	}
+	// call this BEFORE writing to the http.ResponseWriter
+	setSessions(w, r)
 
 	// Delete session.
 	//	session.Options.MaxAge = -1
 
 	// Save.
-	err = sessions.Save(r, w);
+	err := sessions.Save(r, w);
 	if_err_panic("12ds34: error saving session", err)
 
 	// prepare a statement
@@ -68,21 +50,21 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := stmt.Query()
 	if_err_panic("12SDC: failed statement", err)
 
-	var Items []Item
+	var items []Item
 	var scanItem Item
 
 	for rows.Next() {
 		err := rows.Scan(&scanItem.Id, &scanItem.Ke_user_id, &scanItem.MinecraftId, &scanItem.Category, &scanItem.Name, &scanItem.Found, &scanItem.I1, &scanItem.I2, &scanItem.I3, &scanItem.I4, &scanItem.I5, &scanItem.I6, &scanItem.I7, &scanItem.I8, &scanItem.I9, &scanItem.notified_obsolete, &scanItem.notified_wrong, &scanItem.has_image, &scanItem.current, &scanItem.date_created)
 		if_err_panic("23DFV: error during scan", err)
 		//fmt.Println(id, name)
-		Items = append(Items, scanItem)
+		items = append(items, scanItem)
 	}
 
 	rows.Close()
 
-	fmt.Println("%#+v", Items)
+	fmt.Println("%#+v", items)
 
-	listContext := ListContext{"", false, User{"1", "me@you.com"}, Items}
+	listContext := ListContext{"", false, User{"1", "me@you.com"}, items, userState}
 
 	if r.URL.Query().Get("debug") == "true" {
 		fmt.Fprintf(w, "--- CONTEXT---\n")
@@ -110,24 +92,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// get the language
-	var lang string
-	// create a translator
-	if userState.Logged {
-		lang = userState.Lang
-	} else {
-		lang = extendedState.Lang
-	}
+
+
 
 	// we create a translator using either userState (if logged)
 	// or extendedState
-	T := POGO.New(lang)
-	log.Debug("current lang is: %v", lang)
+
 
 	// call this BEFORE writing to the http.ResponseWriter
 	setSessions(w, r)
 
-	context := Context{r, userState, extendedState, contextFlashes, &languagesAtlas.Languages, T}
+	context := Context{r, userState, extendedState, contextFlashes}
 	//	fmt.Printf("%#+v", context)
 	//	goon.Dump(context)
 
@@ -138,8 +113,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// mutex rlock LanguageAtlas before passing to the template that will read it
-	languagesAtlas.RLock()
-	defer languagesAtlas.RUnlock()
+
 
 	err := allTemplates.ExecuteTemplate(w, "login", context)
 	if_err_panic("error executing template: ", err)
