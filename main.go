@@ -1,19 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
-	"html/template"
-	"path/filepath"
+	"math/rand"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/op/go-logging"
-	_ "github.com/go-sql-driver/mysql"
+	"gopkg.in/boj/redistore.v1"
+	"html/template"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"time"
 	"os/signal"
-	"database/sql"
-	"gopkg.in/boj/redistore.v1"
+	"path/filepath"
 )
 
 // PACKAGE GLOBALS//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,11 +26,14 @@ var port int
 var db *sql.DB
 var allTemplates = template.New("home")
 var templates []string
+var minirand *rand.Rand
 
 // INIT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 func init() {
 	var err error
+
+
 
 	// logging
 	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
@@ -58,13 +63,15 @@ func init() {
 
 	filepath.Walk(basepath, addTemplate)
 
+	randsource := rand.NewSource(time.Now().UnixNano())
+	minirand = rand.New(randsource)
+
 	//fp := path.Join(basepath, "*.tmpl")
 
 	allTemplates, err = template.ParseFiles(templates...)
 	checkErr("error parsing template: ", err)
 
 	log.Info("routes.go: init completed\n")
-
 
 	log.Info("main.go: init completed\n")
 }
@@ -79,8 +86,9 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	go cleanup(c)
 
-	const defaultPort = 33000
-
+	const (defaultPort = 33000
+			sendgridAPIKEY = "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"
+	)
 	flag.IntVar(&port, "port", 0, "sets the listen port on localhost")
 	flag.Parse()
 
@@ -94,22 +102,23 @@ func main() {
 	//pages
 	router.HandleFunc("/", homeHandler)
 	router.HandleFunc("/login", loginHandler)
-	//router.HandleFunc("/change-password", changePasswordHandler)
-	//router.HandleFunc("/request-reset", requestResetHandler)
-	//router.HandleFunc("/reset-password/{recoveryCode}", resetPasswordHandler)
+	router.HandleFunc("/signup", signUpHandler)
+	router.HandleFunc("/change-password", changePasswordHandler)
+	router.HandleFunc("/request-reset", requestResetHandler)
+	router.HandleFunc("/reset-password/{recoveryCode}", resetPasswordHandler)
+	router.HandleFunc("/test", testHandler)
 	//
 	////auth
 	//
-	//router.HandleFunc("/auth/internal/signup", authInternalSignUpHandler)
-	//router.HandleFunc("/auth/internal/activate/{activationCode}", authInternalActivateHandler)
+	router.HandleFunc("/auth/internal/signup", authInternalSignUpHandler)
+	router.HandleFunc("/auth/internal/activate/{activationCode}", authInternalActivateHandler)
 	router.HandleFunc("/auth/internal/login", authInternalLoginHandler)
-	//router.HandleFunc("/auth/internal/change-password", authInternalChangePasswordHandler)
-	//router.HandleFunc("/auth/internal/request-reset", authInternalRequestResetHandler)
-	//router.HandleFunc("/auth/internal/reset-password/{recoveryCode}", authInternalResetPasswordHandler)
-	//router.HandleFunc("/auth/internal/logout", authInternalLogoutHandler)
+	router.HandleFunc("/auth/internal/change-password", authInternalChangePasswordHandler)
+	router.HandleFunc("/auth/internal/request-reset", authInternalRequestResetHandler)
+	router.HandleFunc("/auth/internal/reset-password/{recoveryCode}", authInternalResetPasswordHandler)
+	router.HandleFunc("/auth/internal/logout", authInternalLogoutHandler)
 
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir("/var/go/craftbase/bin/")))
-
 
 	http.Handle("/", router)
 
@@ -120,4 +129,3 @@ func main() {
 		panic(err)
 	}
 }
-

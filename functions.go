@@ -1,19 +1,21 @@
 package main
-import(
-	"os"
-	"net/http"
+
+import (
 	"github.com/gorilla/sessions"
+	"net/http"
+	"os"
 )
+
 func getSessions(r *http.Request) (*sessions.Session, *sessions.Session) {
 
 	// Get or create sessions (both short and long lived)
-	session30m, err := store.Get(r, "session30m")
-	if_err_panic("23gh34: error creating session with 30m expiry", err)
+	session30m, _ := store.Get(r, "session30m")
+	//if_err_panic("23gh34: error creating session with 30m expiry", err)
 	session30m.Options.MaxAge = 60 * 30
 	session30m.Options.HttpOnly = true
 
-	session1y, err := store.Get(r, "session1y")
-	if_err_panic("12gh34: error creating session with 1y expiry", err)
+	session1y, _ := store.Get(r, "session1y")
+	//if_err_panic("12gh34: error creating session with 1y expiry", err)
 	session1y.Options.MaxAge = 3600 * 24 * 365
 	session1y.Options.HttpOnly = true
 
@@ -26,10 +28,18 @@ func setSessions(w http.ResponseWriter, r *http.Request) {
 	if_err_panic("12ds34: error saving session", err)
 
 }
+
+func expireSessions(w http.ResponseWriter, r *http.Request, session30m, session1y *sessions.Session) {
+	session30m.Options.MaxAge = -1
+	session1y.Options.MaxAge = -1
+}
+func minimapID() int64 {
+	return int64(minirand.Intn(8999999999999) + 1000000000000)
+}
 func ReLogin(userState *UserState) {
 	// scan a User record to check if it exists and if it's active
 	// prepare the statement
-	stmt, err := db.Prepare("SELECT user_id, nick, email, password, lang, lat, lng, rng, image, status, message, ftsync FROM users WHERE enabled = true AND user_id = ? LIMIT 1")
+	stmt, err := db.Prepare("SELECT user_id, nick, email, password FROM users WHERE user_id = ? LIMIT 1")
 	if_err_panic("57HNB: malformed statement", err)
 	defer stmt.Close()
 
@@ -42,7 +52,7 @@ func ReLogin(userState *UserState) {
 
 	for rows.Next() {
 		// scan record inside scanUser's fields
-		err := rows.Scan(&scanUser.UserID, &scanUser.Nick, &scanUser.Email, &scanUser.Password, &scanUser.Lang)
+		err := rows.Scan(&scanUser.UserID, &scanUser.Nick, &scanUser.Email, &scanUser.Password)
 		scanUser.Enabled = true
 		if_err_panic("45123: error during scan", err)
 	}
@@ -55,7 +65,6 @@ func ReLogin(userState *UserState) {
 		userState.UserID = scanUser.UserID
 		userState.Nick = scanUser.Nick
 		userState.Email = scanUser.Email
-		userState.Lang = scanUser.Lang
 
 	}
 
@@ -111,6 +120,8 @@ func assertUser(w http.ResponseWriter, r *http.Request, session30m, session1y *s
 				// user is RETURN-WANDERING, we copy only a small info subset
 				log.Debug("user is RETURN-WANDERING")
 
+
+				
 			}
 		} else {
 			// user is REALLYNEW
@@ -138,7 +149,7 @@ func cleanup(c chan os.Signal) {
 	os.Exit(0)
 }
 
-func if_err_panic (msg string, e error) {
+func if_err_panic(msg string, e error) {
 	if e != nil {
 		log.Error(msg, e)
 		panic(e)

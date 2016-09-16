@@ -1,0 +1,5 @@
+{{ define "signupEmailText" }}
+"Activate your Craftbse account"
+"Hi, please click on the underlying link to activate your Craftbase account."
+http://cm.avero.it:33000/auth/internal/activate/{{ .ActivationCode }}
+{{ end }}

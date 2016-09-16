@@ -1,0 +1,10 @@
+{{ define "signupEmailHtml" }}
+<html>
+<head>
+    <title>{{  "Activate your craftbase account" }}</title>
+</head>
+<body>{{ "Hi, please click on the underlying link to activate your craftbase account." }}<br>
+<a href="http://cm.avero.it:33000/auth/internal/activate/{{ .ActivationCode }}">{{ "Activate account" }}</a><br>
+</body>
+</html>
+{{ end }}

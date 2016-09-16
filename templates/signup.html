@@ -1,0 +1,53 @@
+{{ define "signup" }}
+
+{{ template "head" . }}
+
+<style>
+    .dg
+</style>
+
+<body xmlns="http://www.w3.org/1999/html" id="uab">
+
+{{template "header" . }}
+
+<div id="scrollingsection" class="uaresection">
+    <!-- page message section -->
+    {{ template "flash" .Flashes }}
+
+    <h4>
+        <ol class="breadcrumb">
+            <!--<li><a href="#">Home</a></li>
+            <li><a href="#">Library</a></li>-->
+            <li class="active">Sign up</li>
+        </ol>
+    </h4>
+    <div class="uform-login" >
+        <form class="form-signin" name='input' target='_self' method='post' action='/auth/internal/signup'>
+            <h2 class="form-signin-heading">Please Sign up</h2>
+
+            <label for="Nick" class="sr-only">Nick</label>
+            <input name='Nick'  class="form-control" placeholder="nickname" id="Nick" type="text" required>
+
+            <label for="Email" type="email" class="sr-only">Email address</label>
+            <input name='Email'  class="form-control" placeholder="email" id="Email" type="email" required>
+
+            <label for="Password" class="sr-only">Password</label>
+            <input name='Password'  class="form-control" placeholder="password" id="Password" type="password">
+
+            <label for="PasswordConfirmation" class="sr-only">Password confirmation</label>
+            <input name='PasswordConfirmation'  class="form-control" placeholder="confirm password" id="PasswordConfirmation" type="password">
+
+            <button type="submit" class="btn btn-lg btn-primary btn-block">Sign Up</button>
+            <br>
+        </form>
+        <br/>
+    </div>
+<br>
+
+</div>
+
+{{ template "footer" . }}
+
+</body>
+
+{{ end }}
